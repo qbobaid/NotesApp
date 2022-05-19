@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "69632697127",
+    "project_id": "my-notes-0a3b",
+    "storage_bucket": "my-notes-0a3b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:69632697127:android:fb6b8e26a593248cc0ff02",
+        "android_client_info": {
+          "package_name": "com.bobaid.notesapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "69632697127-3aoq0s6p6ke2vcsukdd2qgc8bqdnl97e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgWWeiHM7De5FIdcnPmrwLwtrUq0t60eY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "69632697127-3aoq0s6p6ke2vcsukdd2qgc8bqdnl97e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
