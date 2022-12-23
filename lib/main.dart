@@ -1,8 +1,6 @@
-
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 
 void main() {
@@ -16,30 +14,14 @@ void main() {
   ));
 }
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-
-  late final TextEditingController _email;
-  late final TextEditingController _password;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    _email = TextEditingController();
-    _password = TextEditingController();
-    super.initState();
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Register"),
+        title: const Text("Home"),
       ),
       body: FutureBuilder(
         future: Firebase.initializeApp(
@@ -48,39 +30,15 @@ class _HomePageState extends State<HomePage> {
         builder: (context, snapshot) {
           switch(snapshot.connectionState) {
             case ConnectionState.done:
-              return Column(
-                children: [
-                  TextField(
-                    controller: _email,
-                    enableSuggestions: false,
-                    autocorrect: false,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                        hintText: "Enter email here"
-                    ),
-                  ),
-                  TextField(
-                    controller: _password,
-                    obscureText: true,
-                    enableSuggestions: false,
-                    autocorrect: false,
-                    decoration: const InputDecoration(
-                        hintText: "Enter password here"
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      final email = _email.text;
-                      final password = _password.text;
-                      final credentials = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                          email: email,
-                          password: password
-                      );
-                      print(credentials);
-                    },
-                    child: const Text("Register"),
-                  ),
-                ],
+              User? user = FirebaseAuth.instance.currentUser;
+              print(user);
+              if(user?.emailVerified?? false) {
+                print("Your email is verifird.. GREAT!!!");
+              } else {
+                print("You need to verify your email addres");
+              }
+              return const Center(
+                child: Text("Done"),
               );
             default:
               return const Center(
@@ -92,3 +50,4 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
