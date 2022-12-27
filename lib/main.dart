@@ -5,7 +5,6 @@ import 'package:notes_app/views/login_view.dart';
 import 'package:notes_app/views/register_view.dart';
 import 'package:notes_app/views/verify_email_view.dart';
 import 'firebase_options.dart';
-import 'dart:developer' as devtools show log;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,7 +16,8 @@ void main() {
     home: const HomePage(),
     routes: {
       "/register/": (context) => const RegisterView(),
-      "/login/": (context) => const LoginView()
+      "/login/": (context) => const LoginView(),
+      "/notes/": (context) => const NotesView(),
     },
   ));
 }
@@ -35,7 +35,6 @@ class HomePage extends StatelessWidget {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
             User? user = FirebaseAuth.instance.currentUser;
-            print(user);
             if (user != null) {
               if (user.emailVerified) {
                 return const NotesView();
@@ -76,6 +75,7 @@ class _NotesViewState extends State<NotesView> {
               case MenuAction.logout:
                 var shouldLogout = await showLogoutDialog(context);
                 if(shouldLogout) {
+                  await FirebaseAuth.instance.signOut();
                   Navigator.of(context).pushNamedAndRemoveUntil("/login/", (_) => false);
                 }
             }
