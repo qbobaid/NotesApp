@@ -12,19 +12,13 @@ class NotesView extends StatefulWidget {
 }
 
 class _NotesViewState extends State<NotesView> {
-  late final NotesService notesService;
+  late final NotesService _notesService;
   final email = AuthService.firebase().currentUser!.email!;
 
   @override
   void initState() {
-    notesService = NotesService();
+    _notesService = NotesService();
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    notesService.close();
-    super.dispose();
   }
 
   @override
@@ -58,17 +52,36 @@ class _NotesViewState extends State<NotesView> {
         ],
       ),
       body: FutureBuilder(
-          future: notesService.getOrCreateUser(email: email),
+          future: _notesService.getOrCreateUser(email: email),
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.done:
                 return StreamBuilder(
-                  stream: notesService.allNotes,
+                  stream: _notesService.allNotes,
                   builder: (context, snapshot) {
                     switch (snapshot.connectionState) {
                       case ConnectionState.active:
                       case ConnectionState.waiting:
-                        return const Text("Waiting for all notes...");
+                        if (snapshot.hasData) {
+                          final allNotes = snapshot.data as List<DatabaseNote>;
+                          print(allNotes);
+                          return ListView.builder(
+                            itemCount: allNotes.length,
+                            itemBuilder: (context, index) {
+                              final note = allNotes[index];
+                              return ListTile(
+                                title: Text(
+                                  note.text,
+                                  maxLines: 1,
+                                  softWrap: true,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              );
+                            },
+                          );
+                        } else {
+                          return const CircularProgressIndicator();
+                        }
                       default:
                         return const CircularProgressIndicator();
                     }

@@ -19,7 +19,7 @@ class _NewNoteViewState extends State<NewNoteView> {
     if (note == null) {
       return;
     }
-    _notesService.updateNote(
+    await _notesService.updateNote(
       note: note,
       noteText: _textEditingController.text,
     );
