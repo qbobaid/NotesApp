@@ -1,9 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:notes_app/services/auth/auth_service.dart';
 import 'package:notes_app/services/crud/notes_service.dart';
-import '../constants/routes.dart';
-import '../enums/menu_action.dart';
+import '../../constants/routes.dart';
+import '../../enums/menu_action.dart';
 
 class NotesView extends StatefulWidget {
   const NotesView({Key? key}) : super(key: key);
@@ -32,15 +31,22 @@ class _NotesViewState extends State<NotesView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Main UI"),
+        title: const Text("Your Notes"),
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed(newNoteRoute);
+            },
+            icon: const Icon(Icons.add),
+          ),
           PopupMenuButton<MenuAction>(onSelected: (value) async {
             switch (value) {
               case MenuAction.logout:
                 var shouldLogout = await showLogoutDialog(context);
-                if(shouldLogout) {
+                if (shouldLogout) {
                   await AuthService.firebase().logout();
-                  Navigator.of(context).pushNamedAndRemoveUntil(loginRoute, (_) => false);
+                  Navigator.of(context)
+                      .pushNamedAndRemoveUntil(loginRoute, (_) => false);
                 }
             }
           }, itemBuilder: (context) {
@@ -54,9 +60,9 @@ class _NotesViewState extends State<NotesView> {
       body: FutureBuilder(
           future: notesService.getOrCreateUser(email: email),
           builder: (context, snapshot) {
-          switch(snapshot.connectionState) {
-            case ConnectionState.done:
-              return StreamBuilder(
+            switch (snapshot.connectionState) {
+              case ConnectionState.done:
+                return StreamBuilder(
                   stream: notesService.allNotes,
                   builder: (context, snapshot) {
                     switch (snapshot.connectionState) {
@@ -66,12 +72,11 @@ class _NotesViewState extends State<NotesView> {
                         return const CircularProgressIndicator();
                     }
                   },
-              );
-            default:
-              return const CircularProgressIndicator();
-          }
-          }
-      ),
+                );
+              default:
+                return const CircularProgressIndicator();
+            }
+          }),
     );
   }
 }
