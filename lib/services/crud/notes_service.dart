@@ -64,7 +64,7 @@ class NotesService {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
     final queryResult = await db.query(
-      userTable
+      noteTable
     );
 
     return queryResult.map((row) => DatabaseNote.fromRow(row));
@@ -132,7 +132,7 @@ class NotesService {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
     final deleteCount = await db.delete(
-      userTable,
+      noteTable,
       where: "id = ?",
       whereArgs: [id],
     );
