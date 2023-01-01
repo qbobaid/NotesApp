@@ -32,7 +32,6 @@ class NotesService {
   Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
 
   Future<void> _cacheNotes() async {
-    await _ensureDbIsOpen();
     final notes = await getAllNotes();
     _notes = notes.toList();
     _notesStreamController.add(_notes);
@@ -47,7 +46,10 @@ class NotesService {
     final updateCount = await db.update(noteTable, {
       textColumn: noteText,
       isSyncWithCloudColumn: 0
-    });
+    },
+      where: 'id = ?',
+      whereArgs: [note.id],
+    );
 
     if(updateCount == 0) {
       throw CouldNotUpdateNote();
