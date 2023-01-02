@@ -1,17 +1,18 @@
 import 'dart:async';
 
+import 'package:notes_app/extensions/list/filter.dart';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'crud_exceptions.dart';
 
-
 class NotesService {
   Database? _db;
 
   //create single instance of class
   static final NotesService _shared = NotesService._sharedInstance();
+
   NotesService._sharedInstance() {
     _notesStreamController = StreamController<List<DatabaseNote>>.broadcast(
       onListen: () {
@@ -25,11 +26,21 @@ class NotesService {
   //list of notes private to this class
   List<DatabaseNote> _notes = [];
 
+  DatabaseUser? _user;
+
   // final _notesStreamController = StreamController<List<DatabaseNote>>.broadcast();
 
   late final StreamController<List<DatabaseNote>> _notesStreamController;
 
-  Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
+  Stream<List<DatabaseNote>> get allNotes =>
+      _notesStreamController.stream.filter((note) {
+        final currentUser = _user;
+        if(currentUser != null) {
+          return note.userId == currentUser.id;
+        } else {
+          throw UserShouldBeSetBeforeReadingAllNotes();
+        }
+      });
 
   Future<void> _cacheNotes() async {
     final notes = await getAllNotes();
@@ -37,21 +48,21 @@ class NotesService {
     _notesStreamController.add(_notes);
   }
 
-  Future<DatabaseNote> updateNote({required DatabaseNote note, required String noteText}) async {
+  Future<DatabaseNote> updateNote(
+      {required DatabaseNote note, required String noteText}) async {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
 
     await getNote(id: note.id);
 
-    final updateCount = await db.update(noteTable, {
-      textColumn: noteText,
-      isSyncWithCloudColumn: 0
-    },
+    final updateCount = await db.update(
+      noteTable,
+      {textColumn: noteText, isSyncWithCloudColumn: 0},
       where: 'id = ?',
       whereArgs: [note.id],
     );
 
-    if(updateCount == 0) {
+    if (updateCount == 0) {
       throw CouldNotUpdateNote();
     } else {
       final updatedNote = await getNote(id: note.id);
@@ -65,9 +76,7 @@ class NotesService {
   Future<Iterable<DatabaseNote>> getAllNotes() async {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
-    final queryResult = await db.query(
-      noteTable
-    );
+    final queryResult = await db.query(noteTable);
 
     return queryResult.map((row) => DatabaseNote.fromRow(row));
   }
@@ -90,7 +99,7 @@ class NotesService {
       },
     );
 
-    final note =  DatabaseNote(
+    final note = DatabaseNote(
       id: id,
       userId: owner.id,
       text: text,
@@ -146,15 +155,24 @@ class NotesService {
     }
   }
 
-  Future<DatabaseUser> getOrCreateUser({required String email}) async {
+  Future<DatabaseUser> getOrCreateUser({
+    required String email,
+    bool setAsCurrentUser = true,
+  }) async {
     await _ensureDbIsOpen();
     try {
       final user = await getUser(email: email);
+      if(setAsCurrentUser) {
+        _user = user;
+      }
       return user;
     } on CouldNotFindUser {
       final createdUser = await createUser(email: email);
+      if(setAsCurrentUser) {
+        _user = createdUser;
+      }
       return createdUser;
-    } catch(e) {
+    } catch (e) {
       rethrow;
     }
   }
