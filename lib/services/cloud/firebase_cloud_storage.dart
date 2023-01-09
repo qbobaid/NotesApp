@@ -19,9 +19,7 @@ class FirebaseCouldStorage {
     required String text,
   }) async {
     try {
-      await notes.doc(documentId).update({
-        textFieldName: text
-      });
+      await notes.doc(documentId).update({textFieldName: text});
     } catch (e) {
       throw CouldNotUpdateNoteException();
     }
@@ -50,20 +48,24 @@ class FirebaseCouldStorage {
             isEqualTo: ownerUserId,
           )
           .get()
-          .then((value) => value.docs.map((doc) => CloudNote(
-                documentId: doc.id,
-                ownerUserId: doc.data()[ownerUserIdFieldName] as String,
-                text: doc.data()[textFieldName] as String,
+          .then((value) => value.docs.map((doc) => CloudNote.fromSnapshot(
+                doc,
               )));
     } catch (e) {
       throw CouldNotGetAllNotesException();
     }
   }
 
-  void createNewNote({required String ownerUserId}) async {
-    await notes.add({
+  Future<CloudNote> createNewNote({required String ownerUserId}) async {
+    final document = await notes.add({
       ownerUserIdFieldName: ownerUserId,
       textFieldName: '',
     });
+    final createdNote = await document.get();
+    return CloudNote(
+      documentId: createdNote.id,
+      ownerUserId: ownerUserId,
+      text: '',
+    );
   }
 }
