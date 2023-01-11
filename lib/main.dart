@@ -20,7 +20,8 @@ void main() {
     ),
     home: BlocProvider<AuthBloc>(
         create: (context) => AuthBloc(FirebaseAuthProvider()),
-        child: const HomePage()),
+        child: const HomePage(),
+    ),
     routes: {
       registerRoute: (context) => const RegisterView(),
       loginRoute: (context) => const LoginView(),
@@ -37,21 +38,20 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.read<AuthBloc>().add(const AuthEventInitialize());
-    return BlocBuilder(
+    return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
-        switch (state) {
-          case AuthStateLoggedIn:
-            return const NotesView();
-          case AuthStateNeedsVerification:
-            return const VerifyEmailView();
-          case AuthStateLoggedOut:
-            return const LoginView();
-          default:
-            return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
+        if (state is AuthStateLoggedIn) {
+          return const NotesView();
+        } else if (state is AuthStateNeedsVerification) {
+          return const VerifyEmailView();
+        } else if (state is AuthStateLoggedOut) {
+          return const LoginView();
+        } else {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
         }
       },
     );
