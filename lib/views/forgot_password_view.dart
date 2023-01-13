@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notes_app/services/auth/auth_exceptions.dart';
 import 'package:notes_app/services/auth/bloc/auth_bloc.dart';
 import 'package:notes_app/services/auth/bloc/auth_event.dart';
 import 'package:notes_app/utilities/dialog/error_dialog.dart';
@@ -39,10 +40,22 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
             await showPasswordResetEmailSentDialog(context);
           }
           if (state.exception != null) {
-            await showErrorDialog(
-              context,
-              'Unable to process your request. Please make sure you are a registered user, if not, please register a user by going back one step',
-            );
+            if(state.exception is UserNotFoundAuthException) {
+              await showErrorDialog(
+                context,
+                'User in not registered, please register a user by going back one step',
+              );
+            } else if(state.exception is InvalidEmailAuthException) {
+              await showErrorDialog(
+                context,
+                'Invalid email, please provide a valid email',
+              );
+            } else {
+              await showErrorDialog(
+                context,
+                'Unable to process your request. Please make sure you are a registered user, if not, please register a user by going back one step',
+              );
+            }
           }
         }
       },
