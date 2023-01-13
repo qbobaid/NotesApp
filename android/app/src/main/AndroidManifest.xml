@@ -1,9 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bobaid.notes_app">
    <application
-        android:label="notes_app"
+        android:label="MyNotes"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
         <activity
             android:name="com.bobaid.notesapp.MainActivity"
             android:exported="true"
