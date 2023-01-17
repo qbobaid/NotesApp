@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notes_app/extensions/buildcontext/localization.dart';
 import 'package:notes_app/services/auth/auth_exceptions.dart';
 import 'package:notes_app/services/auth/bloc/auth_bloc.dart';
 import 'package:notes_app/services/auth/bloc/auth_event.dart';
@@ -38,25 +39,33 @@ class _LoginViewState extends State<LoginView> {
         if (state is AuthStateLoggedOut) {
           if (state.exception is UserNotFoundAuthException) {
             await showErrorDialog(
-                context, 'Cannot find user with entered credentials');
+              context,
+              context.loc.login_error_cannot_find_user,
+            );
           } else if (state.exception is WrongPasswordAuthException) {
-            await showErrorDialog(context, 'Wrong credentials');
+            await showErrorDialog(
+              context,
+              context.loc.login_error_wrong_credentials,
+            );
           } else if (state.exception is GenericAuthException) {
-            await showErrorDialog(context, 'Authentication error!');
+            await showErrorDialog(
+              context,
+              context.loc.login_error_auth_error,
+            );
           }
         }
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Login"),
+          title: Text(context.loc.login),
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: SingleChildScrollView(
             child: Column(
               children: [
-                const Text(
-                  'Please login to your account to interact with notes application',
+                Text(
+                  context.loc.login_view_prompt,
                 ),
                 TextField(
                   controller: _email,
@@ -64,15 +73,18 @@ class _LoginViewState extends State<LoginView> {
                   autocorrect: false,
                   autofocus: true,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(hintText: "Enter email here"),
+                  decoration: InputDecoration(
+                    hintText: context.loc.email_text_field_placeholder,
+                  ),
                 ),
                 TextField(
                   controller: _password,
                   obscureText: true,
                   enableSuggestions: false,
                   autocorrect: false,
-                  decoration:
-                      const InputDecoration(hintText: "Enter password here"),
+                  decoration: InputDecoration(
+                    hintText: context.loc.password_text_field_placeholder,
+                  ),
                 ),
                 TextButton(
                   onPressed: () async {
@@ -83,19 +95,29 @@ class _LoginViewState extends State<LoginView> {
                           password,
                         ));
                   },
-                  child: const Text("Login"),
+                  child: Text(
+                    context.loc.login,
+                  ),
                 ),
                 TextButton(
                   onPressed: () async {
-                    context.read<AuthBloc>().add(const AuthEventForgotPassword());
+                    context
+                        .read<AuthBloc>()
+                        .add(const AuthEventForgotPassword());
                   },
-                  child: const Text("Forgot password?"),
+                  child: Text(
+                    context.loc.login_view_forgot_password,
+                  ),
                 ),
                 TextButton(
                   onPressed: () {
-                    context.read<AuthBloc>().add(const AuthEventShouldRegister());
+                    context
+                        .read<AuthBloc>()
+                        .add(const AuthEventShouldRegister());
                   },
-                  child: const Text("Not registered? Click to register"),
+                  child: Text(
+                    context.loc.login_view_not_registered_yet,
+                  ),
                 ),
               ],
             ),

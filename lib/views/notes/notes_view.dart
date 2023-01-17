@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notes_app/extensions/buildcontext/localization.dart';
 import 'package:notes_app/services/auth/auth_service.dart';
 import 'package:notes_app/services/auth/bloc/auth_bloc.dart';
 import 'package:notes_app/services/auth/bloc/auth_event.dart';
@@ -9,6 +10,10 @@ import 'package:notes_app/views/notes/notes_list_view.dart';
 import '../../constants/routes.dart';
 import '../../enums/menu_action.dart';
 import '../../utilities/dialog/logout_dialog.dart';
+
+extension Count<T extends Iterable> on Stream<T> {
+  Stream<int> get getLength => map((event) => event.length);
+}
 
 class NotesView extends StatefulWidget {
   const NotesView({Key? key}) : super(key: key);
@@ -31,7 +36,18 @@ class _NotesViewState extends State<NotesView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Your Notes"),
+        title: StreamBuilder<int>(
+          stream: _notesService.allNotes(ownerUserId: userId).getLength,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final notesCount = snapshot.data ?? 0;
+              final text = context.loc.notes_title(notesCount);
+              return Text(text);
+            } else {
+              return const Text('');
+            }
+          },
+        ),
         actions: [
           IconButton(
             onPressed: () {
@@ -48,9 +64,10 @@ class _NotesViewState extends State<NotesView> {
                 }
             }
           }, itemBuilder: (context) {
-            return const [
+            return [
               PopupMenuItem<MenuAction>(
-                  value: MenuAction.logout, child: Text("Log out")),
+                  value: MenuAction.logout,
+                  child: Text(context.loc.logout_button)),
             ];
           })
         ],
@@ -63,11 +80,12 @@ class _NotesViewState extends State<NotesView> {
             case ConnectionState.active:
               if (snapshot.hasData) {
                 final allNotes = snapshot.data as Iterable<CloudNote>;
-                if(allNotes.isNotEmpty) {
+                if (allNotes.isNotEmpty) {
                   return NotesListView(
                     notes: allNotes,
                     onDeleteNote: (note) async {
-                      await _notesService.deleteNote(documentId: note.documentId);
+                      await _notesService.deleteNote(
+                          documentId: note.documentId);
                     },
                     onTap: (note) {
                       Navigator.of(context).pushNamed(
@@ -79,7 +97,6 @@ class _NotesViewState extends State<NotesView> {
                 } else {
                   return const Center(child: Text('no notes found'));
                 }
-
               } else {
                 return const Center(child: CircularProgressIndicator());
               }

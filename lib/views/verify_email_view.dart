@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notes_app/extensions/buildcontext/localization.dart';
 import 'package:notes_app/services/auth/bloc/auth_bloc.dart';
 import 'package:notes_app/services/auth/bloc/auth_event.dart';
 
@@ -15,26 +16,33 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Verify Email"),
+        title: Text(context.loc.verify_email),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const Text("Verification email has been sent to your account, Please open it to verify your account"),
-              const Text("If you haven't received the email, press the button below"),
-              TextButton(
-                  onPressed: () async {
-                    context.read<AuthBloc>().add(const AuthEventSendEmailVerification());
-                  },
-                  child: const Text("Send verification email")
+              Text(
+                context.loc.verify_email_view_prompt,
               ),
               TextButton(
-                  onPressed: () async {
-                    context.read<AuthBloc>().add(const AuthEventLogout());
-                  },
-                  child: const Text("Restart")
+                onPressed: () async {
+                  context
+                      .read<AuthBloc>()
+                      .add(const AuthEventSendEmailVerification());
+                },
+                child: Text(
+                  context.loc.verify_email_send_email_verification,
+                ),
+              ),
+              TextButton(
+                onPressed: () async {
+                  context.read<AuthBloc>().add(const AuthEventLogout());
+                },
+                child: Text(
+                  context.loc.restart,
+                ),
               ),
             ],
           ),
